@@ -1,5 +1,11 @@
 const AWS = require('aws-sdk')
 const client = new AWS.DynamoDB.DocumentClient()
+const schema = require('./RecipieModel.json');
+
+var Ajv = require('ajv');
+var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
+var validate = ajv.compile(schema);
+
 
 const getTableName = () => {
   const { TABLE_NAME } = process.env
@@ -7,7 +13,20 @@ const getTableName = () => {
   return TABLE_NAME
 }
 
-exports.lambda_handler = (event, context, callback) => {
+const now = () => {
+  return new Date().toISOString();
+}
+
+const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
+  const rand = Math.random() * 16 | 0;
+  const val = char === 'x'
+    ? rand
+    : (rand & 0x3 | 0x8);
+  return val.toString(16);
+});
+
+
+exports.lambda_handler = async (event, context, callback) => {
   try {
     const { httpMethod, queryStringParameters, body } = event
 
@@ -23,29 +42,42 @@ exports.lambda_handler = (event, context, callback) => {
       }
     })
 
-    let id, json
+    let id, json, res
     switch (httpMethod) {
       case 'DELETE':
         id = queryStringParameters.id
         if (!id) throw Error('id is a required query parameter')
-        client.delete({ ...params, Key: { id } }, done)
+        res = await client.delete({ ...params, Key: { id } }).promise()
+        done(null, res);
         return
       case 'GET':
-        id = queryStringParameters.id
-        if (id) {
-          client.get({ ...params, Key: { id } }, done)
+        if (queryStringParameters && queryStringParameters.id) {
+          const { Item  } = await client.get({ ...params, Key: { id: queryStringParameters.id } }).promise()
+          done(null, Item)
         } else {
-          client.scan(params, done)
+          const { Items } = await client.scan(params).promise()
+          done(null, Items)
         }
         return
       case 'POST':
-        json = JSON.parse(body)
-        client.put({ ...params, Item: json }, done)
+        json = { ...JSON.parse(body), id: uuid(), createdDate: now() }
+        var valid = validate(json);
+        if (!valid) { 
+          done(validate.errors, null)
+        } else {
+          await client.put({ ...params, Item: json }).promise();
+          done(null, json);
+        }
         return
       case 'PUT':
-        json = JSON.parse(body)
-        client.put({ ...params, Item: json }, done)
-        return
+        json = { ...JSON.parse(body), editedDate: now() }
+        var valid = validate(json);
+        if (!valid) { 
+          done(validate.errors, null)
+        } else {
+          res = await client.put({ ...params, Item: json }).promise();
+          done(null, json);
+        }
       default:
         done(new Error(`Unsupported method "${event.httpMethod}"`))
     }

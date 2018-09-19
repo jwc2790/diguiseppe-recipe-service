@@ -10,7 +10,7 @@ Outputs:
 Resources:
   RecipieServiceLambda:
     Properties:
-      CodeUri: s3://recipies-service/bc934fffaf90ebc2b52a9cbd6943d3b4
+      CodeUri: s3://recipies-service/9466aa0660418b2b2096316f62af78da
       Environment:
         Variables:
           TABLE_NAME: RecipieTable

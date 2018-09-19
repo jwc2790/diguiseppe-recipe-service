@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recipie",
+  "version": "0.0.1",
+  "description": "table for recipie data",
+  "type": "object",
+  "required": ["id", "createdDate"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "for indexing and consistency purposes; unique identifier",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "maxLength": 36,
+      "minLength": 36
+    },
+    "createdDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the record was created"
+    },
+    "editedDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the record was last edited"
+    },
+    "title": {
+      "type": "string",
+      "description": "title of the recipie"
+    },
+    "author": {
+      "type": "string",
+      "description": "name of the recipie author"
+    },
+    "email": {
+      "type": "string",
+      "description": "email of the recipie author",
+      "format": "email"
+    },
+    "imageUrl": {
+      "type": "string",
+      "description": "uri of an image of the completed recipie",
+      "format": "uri"
+    },
+    "steps": {
+      "type": "array",
+      "description": "text instructions to execute recipie",
+      "uniqueItems": true,
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "list of ingredients needed for recpie",
+      "uniqueItems": true,
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["ingredient"],
+        "properties": {
+          "amount": { 
+            "type": "number" 
+          },
+          "unit": { 
+            "type": "string"
+          },
+          "ingredient": { 
+            "type": "string"
+          },
+          "optional": { 
+            "type": "boolean",
+            "default": false
+          }
+        } 
+      }
+    }
+  }
+}

@@ -6,3 +6,8 @@ Microservice for CRUD operations on recipie model
 
 
 `./deploy.sh`
+`./start.sh`
+
+# Todo:
+
+- harden permissions.
