@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Recipie Servcie
+Outputs:
+  RecipieServiceLambda:
+    Description: Recipie Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - RecipieServiceLambda
+      - Arn
+Resources:
+  RecipieServiceLambda:
+    Properties:
+      CodeUri: s3://recipies-service/bc934fffaf90ebc2b52a9cbd6943d3b4
+      Environment:
+        Variables:
+          TABLE_NAME: RecipieTable
+      Events:
+        DELETERecipie:
+          Properties:
+            Method: delete
+            Path: /recipie
+          Type: Api
+        GETRecipie:
+          Properties:
+            Method: get
+            Path: /recipie
+          Type: Api
+        POSTRecipie:
+          Properties:
+            Method: post
+            Path: /recipie
+          Type: Api
+        PUTRecipie:
+          Properties:
+            Method: put
+            Path: /recipie
+          Type: Api
+      Handler: index.lambda_handler
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Runtime: nodejs8.10
+    Type: AWS::Serverless::Function
+  RecipieTable:
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: RecipieTable
+    Type: AWS::Serverless::SimpleTable
+Transform: AWS::Serverless-2016-10-31
