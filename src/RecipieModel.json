@@ -75,6 +75,42 @@
           }
         } 
       }
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "appetizers",
+        "soups and sauces",
+        "salads",
+        "breads",
+        "vegetables and side dishes",
+        "meats and fishes",
+        "main dishes",
+        "deserts",
+        "cookies",
+        "drinks"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "description": "list of ingredients needed for recpie",
+      "uniqueItems": true,
+      "default": []
+    },
+    "duration": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "default": ""
     }
   }
 }

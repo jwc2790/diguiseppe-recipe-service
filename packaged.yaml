@@ -1,5 +1,16 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Recipie Servcie
+Globals:
+  Api:
+    Cors:
+      AllowHeaders: '''*'''
+      AllowMethods: '''*'''
+      AllowOrigin: '''*'''
+  Function:
+    Environment:
+      Variables:
+        TABLE_NAME: RecipieTable
+    Runtime: nodejs8.10
 Outputs:
   RecipieServiceLambda:
     Description: Recipie Lambda Function ARN
@@ -10,10 +21,7 @@ Outputs:
 Resources:
   RecipieServiceLambda:
     Properties:
-      CodeUri: s3://recipies-service/9466aa0660418b2b2096316f62af78da
-      Environment:
-        Variables:
-          TABLE_NAME: RecipieTable
+      CodeUri: s3://recipies-service/ba1ce3ec423ca35c9633ed5818d56798
       Events:
         DELETERecipie:
           Properties:
@@ -38,7 +46,6 @@ Resources:
       Handler: index.lambda_handler
       Policies:
       - AmazonDynamoDBFullAccess
-      Runtime: nodejs8.10
     Type: AWS::Serverless::Function
   RecipieTable:
     Properties:

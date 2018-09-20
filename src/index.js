@@ -38,7 +38,9 @@ exports.lambda_handler = async (event, context, callback) => {
       statusCode: err ? 400 : 200,
       body: JSON.stringify(err ? { error: err.message } : res),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE",
+        "Access-Control-Allow-Origin": "*"
       }
     })
 

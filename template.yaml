@@ -2,18 +2,30 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Recipie Servcie
 
+Globals:
+
+  Function:
+    Runtime: nodejs8.10
+    Environment:
+      Variables:
+        TABLE_NAME: RecipieTable
+
+  Api:
+    # enable CORS; to make more specific, change the origin wildcard
+    # to a particular domain name, e.g. "'www.example.com'"
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
 Resources:
     RecipieServiceLambda:
         Type: AWS::Serverless::Function 
         Properties:
             CodeUri: src/
             Handler: index.lambda_handler
-            Runtime: nodejs8.10
             Policies: 
                 - AmazonDynamoDBFullAccess
-            Environment:
-                Variables:
-                    TABLE_NAME: RecipieTable 
             Events:
                 GETRecipie:
                     Type: Api
