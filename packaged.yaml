@@ -21,7 +21,7 @@ Outputs:
 Resources:
   RecipieServiceLambda:
     Properties:
-      CodeUri: s3://recipies-service/ba1ce3ec423ca35c9633ed5818d56798
+      CodeUri: s3://recipies-service/0e98b00a02bb49d26fb62a99c5dde39f
       Events:
         DELETERecipie:
           Properties:

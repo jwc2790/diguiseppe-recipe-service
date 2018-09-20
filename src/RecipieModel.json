@@ -77,39 +77,49 @@
       }
     },
     "category": {
-      "type": "string",
-      "enum": [
-        "appetizers",
-        "soups and sauces",
-        "salads",
-        "breads",
-        "vegetables and side dishes",
-        "meats and fishes",
-        "main dishes",
-        "deserts",
-        "cookies",
-        "drinks"
-      ]
+      "type": "array",
+      "description": "categories this recipe falls into",
+      "uniqueItems": true,
+      "default": [],
+      "items": {
+        "type": "string",
+        "enum": [
+          "appetizers",
+          "soups and sauces",
+          "salads",
+          "breads",
+          "vegetables and side dishes",
+          "meats and fishes",
+          "main dishes",
+          "deserts",
+          "cookies",
+          "drinks"
+        ]
+      }
+      
     },
     "tags": {
       "type": "array",
-      "description": "list of ingredients needed for recpie",
+      "description": "other keywords this recipie might be searched by",
       "uniqueItems": true,
       "default": []
     },
     "duration": {
       "type": "object",
+      "description": "the time it takes to make",
       "properties": {
-        "number": {
-          "type": "string"
+        "time": {
+          "type": "number"
         },
         "unit": {
-          "type": "string"
+          "type": "string",
+          "enum": ["seconds", "minutes", "hours", "days"]
         }
       }
     },
     "description": {
       "type": "string",
+      "description": "textual description of the recipe",
       "default": ""
     }
   }
