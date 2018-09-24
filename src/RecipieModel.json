@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Recipie",
   "version": "0.0.1",
-  "description": "table for recipie data",
+  "description": "table for recipe data",
   "type": "object",
-  "required": ["id", "createdDate"],
+  "required": ["id", "createdDate", "title", ""],
   "additionalProperties": false,
   "properties": {
     "id": {
@@ -26,25 +26,25 @@
     },
     "title": {
       "type": "string",
-      "description": "title of the recipie"
+      "description": "title of the recipe"
     },
     "author": {
       "type": "string",
-      "description": "name of the recipie author"
+      "description": "name of the recipe author"
     },
     "email": {
       "type": "string",
-      "description": "email of the recipie author",
+      "description": "email of the recipe author",
       "format": "email"
     },
     "imageUrl": {
       "type": "string",
-      "description": "uri of an image of the completed recipie",
+      "description": "uri of an image of the completed recipe",
       "format": "uri"
     },
     "steps": {
       "type": "array",
-      "description": "text instructions to execute recipie",
+      "description": "text instructions to execute recipe",
       "uniqueItems": true,
       "default": [],
       "items": {
@@ -100,7 +100,7 @@
     },
     "tags": {
       "type": "array",
-      "description": "other keywords this recipie might be searched by",
+      "description": "other keywords this recipe might be searched by",
       "uniqueItems": true,
       "default": []
     },

@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Recipie Servcie
+
+Globals:
+
+  Function:
+    Runtime: nodejs8.10
+    Environment:
+      Variables:
+        TABLE_NAME: RecipieTable
+
+  Api:
+    # enable CORS; to make more specific, change the origin wildcard
+    # to a particular domain name, e.g. "'www.example.com'"
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
+Resources:
+    RecipieServiceLambda:
+        Type: AWS::Serverless::Function 
+        Properties:
+            CodeUri: src/
+            Handler: index.lambda_handler
+            Policies: 
+                - AmazonDynamoDBFullAccess
+            Events:
+                GETRecipie:
+                    Type: Api
+                    Properties:
+                        Path: /recipe
+                        Method: get
+                POSTRecipie:
+                    Type: Api
+                    Properties:
+                        Path: /recipe
+                        Method: post
+                PUTRecipie:
+                    Type: Api
+                    Properties:
+                        Path: /recipe
+                        Method: put
+                DELETERecipie:
+                    Type: Api
+                    Properties:
+                        Path: /recipe
+                        Method: delete
+
+    RecipieTable:                   
+        Type: AWS::Serverless::SimpleTable
+        Properties:
+            TableName: RecipieTable
+            PrimaryKey:
+                Name: id
+                Type: String
+            ProvisionedThroughput:
+                ReadCapacityUnits: 5
+                WriteCapacityUnits: 5
+
+Outputs:
+    RecipieServiceLambda:
+      Description: "Recipie Lambda Function ARN"
+      Value: !GetAtt RecipieServiceLambda.Arn

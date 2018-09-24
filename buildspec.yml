@@ -1,0 +1,57 @@
+version: 0.2
+
+env:
+  variables:
+    TEST_ENV_BUCKET: sneaker-lab-shoe-service-test
+    PROD_ENV_BUCKET: sneaker-lab-shoe-service-prod
+
+phases:
+  install:
+    commands:
+      - git config --global url."https://${GITHUB_ACCESS_TOKEN}:x-oauth-basic@github.com/".insteadOf "ssh://git@github.com/"
+      - NODE_ENV=test npm install
+
+  pre_build:
+    commands:
+      - |
+        if [ "$GIT_BRANCH" = "master" ]; then
+          ENV_BUCKET=$PROD_ENV_BUCKET
+          ENV_KEY=env/env.prod
+        else
+          ENV_BUCKET=$TEST_ENV_BUCKET
+          ENV_KEY=env/env.test
+        fi
+      - |
+        echo Loading env vars from $ENV_BUCKET/$ENV_KEY
+        aws s3api get-object \
+          --bucket $ENV_BUCKET \
+          --key $ENV_KEY \
+          .env;
+        . ./.env
+
+  build:
+    commands:
+      - npm run build
+      - npm run build:infra
+
+  post_build:
+    commands:
+      - |
+        echo running tests
+        npm run verify
+      - |
+        if [ "$GIT_BRANCH" = "dev" ] || [ "$GIT_BRANCH" = "master" ]; then
+          echo uploading cloudformation template
+          aws s3 cp \
+            infra/template.json \
+            s3://$CFN_ARTIFACT_LOCATION/$GIT_REPO/template.json
+
+          echo uploading build source
+          aws s3 cp \
+            source.zip \
+            s3://$CFN_ARTIFACT_LOCATION/$GIT_REPO/source.zip
+        fi
+
+artifacts:
+  files:
+    - infra/*

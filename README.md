@@ -1,6 +1,6 @@
-# recipie-service
+# recipe-service
 
-Microservice for CRUD operations on recipie model
+Microservice for CRUD operations on recipe model
 
 `AWS_PROFILE=cuffney sam local start-api`
 
