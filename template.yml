@@ -2,61 +2,45 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Recipe Servcie
 
+## #############################################################################
+## Parameters
+## #############################################################################
+
 Parameters:
-    HostedZoneName:
-        Type: String
-        Default: diguisepperecipes.com
+
     RecipeTableName:
         Type: String
         Default: RecipeTable
-    UserPoolName:
-        Type: String
-        Default: DiGuiseppeRecipesUserPool
+
+## #############################################################################
+## Globals
+## #############################################################################
 
 Globals:
+
   Function:
     Runtime: nodejs8.10
 
+## #############################################################################
+## Resources
+## #############################################################################
+
 Resources:
 
-    # API
-    # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessapi
-    PrivateAPI:
-        Type: AWS::Serverless::Api
-        Properties:
-            StageName: v1
-
-            # Allows www.example.com to call these APIs
-            # SAM will automatically add AllowMethods with a list of methods for this API
-            # Cors: "'www.example.com'"
-            # Cors:
-            #     AllowMethods: "'*'"
-            #     AllowHeaders: "'*'"
-            #     AllowOrigin: "'*'"
-
-            DefinitionBody:
-                'Fn::Transform':
-                    Name: 'AWS::Include'
-                    # Replace <bucket> with your bucket name
-                    Parameters:
-                        Location: s3://com.diguisepperecipes.api/swagger.yml
-
-    # TODO: /recipe (private)
     # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     RecipeServiceLambda:
         Type: AWS::Serverless::Function 
         Properties:
-            CodeUri: src/recipe
+            CodeUri: src/
             Handler: index.handler
             # TODO: harden this to read and write only
             Policies: 
                 - AmazonDynamoDBFullAccess
             Environment:
                 Variables:
-                    # TODO: do !Ref / !GetAtt not work for environment varables?
+                    # QUESTION: do !Ref / !GetAtt not work for environment varables?
                     TABLE_NAME: RecipeTable
 
-    # Dynamo Tables
     # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
     RecipeTable:                   
         Type: AWS::Serverless::SimpleTable
@@ -70,51 +54,15 @@ Resources:
                 ReadCapacityUnits: 5
                 WriteCapacityUnits: 5
 
+## #############################################################################
+## Outputs
+## #############################################################################
 
-    # TODO: cognito user pool for private endpoints
-    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpool.html
-    UserPool:
-        Type: AWS::Cognito::UserPool
-        Properties: 
-            UserPoolName: 
-                Ref: UserPoolName
+Outputs:
 
-    # TODO: cognito user to use for authenticated requests
-    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpooluser.html
-    RootUser:
-        Type: AWS::Cognito::UserPoolUser
-        Properties: 
-            UserPoolId:
-                Ref: UserPool
-            Username: jcuffney
-
-    # TODO: DNS for API
-    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-recordset.html
-    # ApiDnsRecord:
-    #     Type: AWS::Route53::RecordSet
-    #     Properties:
-    #         HostedZoneName: 
-    #             Ref 'HostedZoneName'
-    #         Name: !Join ['', [!Ref 'Ec2Instance', ., !Ref 'AWS::Region', ., !Ref 'HostedZone', .]]
-    #         Type: A
-    #         TTL: '900'
-    #         ResourceRecords:
-    #         - !GetAtt Ec2Instance.PublicIp
-
-
-# Outputs:
-    # TODO: export lambdas
-    # RecipieServiceLambda:
-    #     Description: "Recipie Lambda Function ARN"
-    #     Value: !GetAtt RecipieServiceLambda.Arn
-
-    # TODO: api url as stack output
-    # ApiUrl:
-    #     Description: URL of your API endpoint
-    #     Value: !Join
-    #     - ''
-    #     - - https://
-    #         - !Ref ApiGatewayApi
-    #         - '.execute-api.'
-    #         - !Ref 'AWS::Region'
-    #         - '.amazonaws.com/Prod'
+    RecipeServiceLambda:
+        Description: Recipe Lambda Function ARN
+        Value: 
+            Fn::GetAtt: RecipeServiceLambda.Arn
+        Export:
+            Name: RecipeServiceLambda

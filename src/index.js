@@ -2,10 +2,10 @@ const AWS = require('aws-sdk')
 const client = new AWS.DynamoDB.DocumentClient()
 const schema = require('./RecipeModel.json');
 
+// TODO: find a way to validate at the API Gateway Level via OpenAPI
 var Ajv = require('ajv');
 var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 var validate = ajv.compile(schema);
-
 
 const getTableName = () => {
   const { TABLE_NAME } = process.env
@@ -27,31 +27,33 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char
 
 
 exports.handler = async (event, context, callback) => {
+  // Callback to finish response
+  const done = (err, res) => callback(null, {
+    statusCode: err ? 500 : 200,
+    body: JSON.stringify(err ? { error: err.message } : res),
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE",
+      "Access-Control-Allow-Origin": "*"
+    }
+  })
+  
   try {
     const { httpMethod, queryStringParameters, body } = event
 
     const tableName = getTableName()
     const params = { TableName: tableName }
 
-    // Callback to finish response
-    const done = (err, res) => callback(null, {
-      statusCode: err ? 500 : 200,
-      body: JSON.stringify(err ? { error: err.message } : res),
-      headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE",
-        "Access-Control-Allow-Origin": "*"
-      }
-    })
-
     let id, json, res
     switch (httpMethod) {
       case 'DELETE':
         id = queryStringParameters.id
+        console.log(queryStringParameters, id)
         if (!id) throw Error('id is a required query parameter')
         res = await client.delete({ ...params, Key: { id } }).promise()
         done(null, res);
         return
+      
       case 'GET':
         if (queryStringParameters && queryStringParameters.id) {
           const { Item  } = await client.get({ ...params, Key: { id: queryStringParameters.id } }).promise()
@@ -61,6 +63,7 @@ exports.handler = async (event, context, callback) => {
           done(null, Items)
         }
         return
+      
       case 'POST':
         json = { ...JSON.parse(body), id: uuid(), createdDate: now() }
         var valid = validate(json);
@@ -71,6 +74,7 @@ exports.handler = async (event, context, callback) => {
           done(null, json);
         }
         return
+      
       case 'PUT':
         json = { ...JSON.parse(body), editedDate: now() }
         var valid = validate(json);
@@ -81,11 +85,11 @@ exports.handler = async (event, context, callback) => {
           done(null, json);
         }
         return
+      
       default:
         done(new Error(`Unsupported method "${event.httpMethod}"`))
     }
   } catch (err) {
     done(err.message, null);
-    
   }
 }

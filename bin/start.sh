@@ -1,1 +1,0 @@
-AWS_PROFILE=cuffney sam local start-api
