@@ -1,0 +1,209 @@
+openapi: 3.0.0
+
+info:
+  title: DiGuiseppe Recipes API
+  description: Backend API for services related to the diguisepperecipes.com site.
+  version: 0.0.1
+
+paths:
+
+  # Recipe Endpoint
+  /recipe:
+
+    get:
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeList'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          'Fn::Sub': >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+    post:
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          'Fn::Sub': >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+  /recipe/{id}:
+
+    put:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          'Fn::Sub': >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+    delete:
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          'Fn::Sub': >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+  # Search Endpoint
+  /search:
+    get:
+      parameters:
+        - in: query
+          name: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeList'
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri:
+          'Fn::Sub': >-
+            arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+
+servers:
+  - url: 'https://api.diguisepperecipes.com/v1'
+  # TODO: rm
+  - url: 'http://api.diguisepperecipes.com/v1'
+
+# TODO: add authorization
+# securitySchemes:
+#   - MyUserPool
+
+components:
+  schemas:
+
+    RecipeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Recipe'
+
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+        createdDate:
+          type: string
+        editedDate:
+          type: string
+          format: date-time
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        email:
+          type: string
+          format: email
+        imageUrl:
+          type: string
+          format: uri
+        steps:
+          type: array
+          items:
+            type: string
+        ingredients:
+          type: array
+          items:
+            type: string
+        category:
+          type: array
+          items:
+            type: string
+            enum:
+              - appetizers
+              - soups and sauces
+              - salads
+              - breads
+              - vegetables and side dishes
+              - meats and fishes
+              - main dishes
+              - desserts
+              - cookies
+              - drinks
+        tags:
+          type: array
+          items:
+            type: string
+        duration:
+          type: object
+          properties:
+            time:
+              type: integer
+            unit:
+              type: string
+              enum:
+                - second
+                - minute
+                - hour
+                - day

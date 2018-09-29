@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "table for recipe data",
   "type": "object",
-  "required": ["id", "createdDate", "title", ""],
+  "required": ["id", "createdDate"],
   "additionalProperties": false,
   "properties": {
     "id": {

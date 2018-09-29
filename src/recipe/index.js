@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk')
 const client = new AWS.DynamoDB.DocumentClient()
-const schema = require('./RecipieModel.json');
+const schema = require('./RecipeModel.json');
 
 var Ajv = require('ajv');
 var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
@@ -26,7 +26,7 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char
 });
 
 
-exports.lambda_handler = async (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
   try {
     const { httpMethod, queryStringParameters, body } = event
 
@@ -35,7 +35,7 @@ exports.lambda_handler = async (event, context, callback) => {
 
     // Callback to finish response
     const done = (err, res) => callback(null, {
-      statusCode: err ? 400 : 200,
+      statusCode: err ? 500 : 200,
       body: JSON.stringify(err ? { error: err.message } : res),
       headers: {
         'Content-Type': 'application/json',
@@ -80,10 +80,12 @@ exports.lambda_handler = async (event, context, callback) => {
           res = await client.put({ ...params, Item: json }).promise();
           done(null, json);
         }
+        return
       default:
         done(new Error(`Unsupported method "${event.httpMethod}"`))
     }
   } catch (err) {
-    throw Error(err.message)
+    done(err.message, null);
+    
   }
 }
