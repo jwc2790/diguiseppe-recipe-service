@@ -60,9 +60,10 @@ Resources:
 
 Outputs:
 
-    RecipeServiceLambdaArn:
+    RecipeServiceApiGatewayArn:
         Description: Recipe Lambda Function ARN
         Value: 
-            Fn::GetAtt: RecipeServiceLambda.Arn
+            Fn::Sub: >-
+                arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
         Export:
             Name: RecipeServiceLambdaArn
