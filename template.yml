@@ -60,9 +60,9 @@ Resources:
 
 Outputs:
 
-    RecipeServiceLambda:
+    RecipeServiceLambdaArn:
         Description: Recipe Lambda Function ARN
         Value: 
             Fn::GetAtt: RecipeServiceLambda.Arn
         Export:
-            Name: RecipeServiceLambda
+            Name: RecipeServiceLambdaArn
