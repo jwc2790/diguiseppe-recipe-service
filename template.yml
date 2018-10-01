@@ -31,12 +31,11 @@ Resources:
     RecipeServiceLambda:
         Type: AWS::Serverless::Function 
         Properties:
+            FunctionName: recipe-service
             CodeUri: src/
             Handler: index.handler
             Role: 
                 Fn::GetAtt: LambdaExecutionRole.Arn
-            # Policies: 
-            #     - AmazonDynamoDBFullAccess
             Environment:
                 Variables:
                     # TODO: this should be done via a .env file and it's value here should be empty 
