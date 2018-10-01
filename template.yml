@@ -33,13 +33,44 @@ Resources:
         Properties:
             CodeUri: src/
             Handler: index.handler
-            # TODO: harden this to read and write only
-            Policies: 
-                - AmazonDynamoDBFullAccess
+            Role: 
+                Fn::GetAtt: LambdaExecutionRole.Arn
+            # Policies: 
+            #     - AmazonDynamoDBFullAccess
             Environment:
                 Variables:
                     # QUESTION: do !Ref / !GetAtt not work for environment varables?
+                    # TODO: this should be done via a .env file and it's value here should be empty 
                     TABLE_NAME: RecipeTable
+
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+    LambdaExecutionRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                - Effect: Allow
+                  Principal:
+                    Service:
+                      - lambda.amazonaws.com
+                  Action:
+                    - sts:AssumeRole
+            Path: "/"
+            Policies:
+                - PolicyName: lambda-crud
+                  PolicyDocument:
+                    Version: '2012-10-17'
+                    Statement:
+                        - Effect: Allow
+                          Action:
+                            - logs:*
+                          Resource: arn:aws:logs:*:*:*
+                        - Effect: Allow
+                          Action:
+                            - dynamodb:*
+                          Resource:
+                            Fn::GetAtt: RecipeTable.Arn
 
     # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
     RecipeTable:                   
@@ -53,6 +84,16 @@ Resources:
             ProvisionedThroughput:
                 ReadCapacityUnits: 5
                 WriteCapacityUnits: 5
+
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-permission.html
+    ConfigLambdaPermission:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: 
+                Ref: RecipeServiceLambda
+            Principal: apigateway.amazonaws.com
+
 
 ## #############################################################################
 ## Outputs
