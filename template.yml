@@ -39,7 +39,6 @@ Resources:
             #     - AmazonDynamoDBFullAccess
             Environment:
                 Variables:
-                    # QUESTION: do !Ref / !GetAtt not work for environment varables?
                     # TODO: this should be done via a .env file and it's value here should be empty 
                     TABLE_NAME: RecipeTable
 
