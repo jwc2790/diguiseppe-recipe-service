@@ -71,17 +71,35 @@ Resources:
                             Fn::GetAtt: RecipeTable.Arn
 
     # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
+    # RecipeTable:                   
+    #     Type: AWS::Serverless::SimpleTable
+    #     Properties:
+    #         TableName: 
+    #             Ref: RecipeTableName
+    #         PrimaryKey:
+    #             Name: id
+    #             Type: String
+    #         ProvisionedThroughput:
+    #             ReadCapacityUnits: 5
+    #             WriteCapacityUnits: 5
+
     RecipeTable:                   
-        Type: AWS::Serverless::SimpleTable
+        Type: AWS::DynamoDB::Table
         Properties:
             TableName: 
                 Ref: RecipeTableName
-            PrimaryKey:
-                Name: id
-                Type: String
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+            KeySchema:
+                -
+                    AttributeName: id
+                    KeyType: HASH
             ProvisionedThroughput:
                 ReadCapacityUnits: 5
                 WriteCapacityUnits: 5
+            StreamSpecification:
+                StreamViewType: NEW_IMAGE
 
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-permission.html
     ConfigLambdaPermission:
@@ -106,3 +124,10 @@ Outputs:
                 arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
         Export:
             Name: RecipeServiceApiGatewayArn
+
+    RecipeTableStreamArn:
+        Description: ARN for Dynamo table stream
+        Value: 
+            Fn::GetAtt: RecipeTable.StreamArn
+        Export:
+            Name: RecipeTableStreamArn
