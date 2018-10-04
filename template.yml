@@ -31,7 +31,7 @@ Resources:
     RecipeServiceLambda:
         Type: AWS::Serverless::Function 
         Properties:
-            FunctionName: recipe-service
+            FunctionName: diguiseppe-recipes-recipe-service
             CodeUri: src/
             Handler: index.handler
             Role: 
@@ -68,21 +68,9 @@ Resources:
                           Action:
                             - dynamodb:*
                           Resource:
-                            Fn::GetAtt: RecipeTable.Arn
-
-    # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
-    # RecipeTable:                   
-    #     Type: AWS::Serverless::SimpleTable
-    #     Properties:
-    #         TableName: 
-    #             Ref: RecipeTableName
-    #         PrimaryKey:
-    #             Name: id
-    #             Type: String
-    #         ProvisionedThroughput:
-    #             ReadCapacityUnits: 5
-    #             WriteCapacityUnits: 5
-
+                            Fn::GetAtt: RecipeTable.Arn 
+                            
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
     RecipeTable:                   
         Type: AWS::DynamoDB::Table
         Properties:
