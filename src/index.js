@@ -57,7 +57,8 @@ exports.handler = async (event, context, callback) => {
       
       case 'POST':
         json = { ...JSON.parse(body), id: uuid(), createdDate: now() }
-          await client.put({ ...params, Item: json }).promise();
+          res = await client.put({ ...params, Item: json }).promise();
+          done(null, json);
         return
       
       case 'PUT':
