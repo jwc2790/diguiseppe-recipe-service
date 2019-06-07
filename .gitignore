@@ -1,2 +1,2 @@
-src/**/node_modules
-packaged.yml
+node_modules
+coverage

@@ -1,0 +1,18 @@
+{
+  "name": "diguiseppe-recipe-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "repository": "https://github.com/jcuffney/diguiseppe-recipe-service",
+  "author": "Joe Cuffney",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo 'testing...'",
+    "build": "echo 'building...'",
+    "lint": "echo 'linting...'"
+  },
+  "dependencies": {
+    "ajv": "^6.10.0",
+    "aws-sdk": "^2.470.0"
+  }
+}
