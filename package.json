@@ -9,10 +9,16 @@
   "scripts": {
     "test": "echo 'testing...'",
     "build": "echo 'building...'",
-    "lint": "echo 'linting...'"
+    "lint:fix": "NODE_PATH=src eslint --fix src/**/*.js",
+    "lint": "NODE_PATH=src eslint src/**/*.js"
   },
   "dependencies": {
     "ajv": "^6.10.0",
     "aws-sdk": "^2.470.0"
+  },
+  "devDependencies": {
+    "@cuffney/eslint-config": "^1.0.4",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0"
   }
 }

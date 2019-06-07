@@ -38,7 +38,7 @@ exports.handler = async (event, context, callback) => {
     const tableName = getTableName()
     const params = { TableName: tableName }
 
-    let id, json, res
+    let json, res
     switch (httpMethod) {
       case 'DELETE':
         res = await client.delete({ ...params, Key: { id: pathParameters.id } }).promise()
