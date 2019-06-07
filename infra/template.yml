@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: Recipe Servcie
+Description: Recipe Service
 
 ## #############################################################################
 ## Parameters
@@ -8,18 +7,25 @@ Description: Recipe Servcie
 
 Parameters:
 
-    RecipeTableName:
+    TableName:
+        Type: String  
+        Description: the name of the database
+
+    FunctionName:
         Type: String
-        Default: RecipeTable
+        Description: the name of the function
 
-## #############################################################################
-## Globals
-## #############################################################################
+    FunctionRuntime:
+        Type: String
+        Description: lambda function runtime
 
-Globals:
+    SourceBucket:
+        Type: String
+        Description: lambda function bucket name
 
-  Function:
-    Runtime: nodejs8.10
+    SourceKey:
+        Type: String
+        Description: lambda function source key
 
 ## #############################################################################
 ## Resources
@@ -27,19 +33,33 @@ Globals:
 
 Resources:
 
-    # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    RecipeServiceLambda:
-        Type: AWS::Serverless::Function 
+    Lambda:
+        Type: AWS::Lambda::Function 
         Properties:
-            FunctionName: diguiseppe-recipes-recipe-service
-            CodeUri: src/
-            Handler: index.handler
+            FunctionName:
+              Ref: FunctionName
+            Runtime:
+              Ref: FunctionRuntime
+            Code:
+              S3Bucket:
+                Ref: SourceBucket
+              S3Key:
+                Ref: SourceKey
+            Timeout: 3
+            Handler: src/index.handler
             Role: 
                 Fn::GetAtt: LambdaExecutionRole.Arn
             Environment:
                 Variables:
-                    # TODO: this should be done via a .env file and it's value here should be empty 
-                    TABLE_NAME: RecipeTable
+                    TABLE_NAME:
+                        Ref: TableName
+            Tags:
+                - Key: Project
+                  Value: diguiseppe-recipes
+                - Key: Stack
+                  Value: diguiseppe-recipe-service
+                - Key: Environment
+                  Value: prod
 
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
     LambdaExecutionRole:
@@ -68,14 +88,14 @@ Resources:
                           Action:
                             - dynamodb:*
                           Resource:
-                            Fn::GetAtt: RecipeTable.Arn 
+                            Fn::GetAtt: Table.Arn 
                             
     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
-    RecipeTable:                   
+    Table:                   
         Type: AWS::DynamoDB::Table
         Properties:
             TableName: 
-                Ref: RecipeTableName
+                Ref: TableName
             AttributeDefinitions:
                 - AttributeName: id
                   AttributeType: S
@@ -95,7 +115,7 @@ Resources:
         Properties:
             Action: lambda:InvokeFunction
             FunctionName: 
-                Ref: RecipeServiceLambda
+                Ref: Lambda
             Principal: apigateway.amazonaws.com
 
 
@@ -105,17 +125,17 @@ Resources:
 
 Outputs:
 
-    RecipeServiceApiGatewayArn:
-        Description: Recipe Lambda Function ARN
+    ServiceApiGatewayArn:
+        Description: Lambda Function ARN
         Value: 
             Fn::Sub: >-
-                arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RecipeServiceLambda.Arn}/invocations
-        Export:
-            Name: RecipeServiceApiGatewayArn
+                arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Lambda.Arn}/invocations
+        # Export:
+        #     Name: RecipeServiceApiGatewayArn
 
-    RecipeTableStreamArn:
+    TableStreamArn:
         Description: ARN for Dynamo table stream
         Value: 
-            Fn::GetAtt: RecipeTable.StreamArn
-        Export:
-            Name: RecipeTableStreamArn
+            Fn::GetAtt: Table.StreamArn
+        # Export:
+        #     Name: RecipeTableStreamArn
